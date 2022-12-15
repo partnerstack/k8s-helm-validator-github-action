@@ -1,0 +1,74 @@
+apiVersion: "apps/v1"
+kind: "Deployment"
+metadata:
+  name: "{{ .Release.Name }}-api"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app: "{{ .Release.Name }}-api"
+    tags.datadoghq.com/service: "{{ .Release.Name }}-api"
+    tags.datadoghq.com/env: {{ .Values.environment }}
+    tags.datadoghq.com/version: "{{ template "suffixTemplate" . }}"
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}-api"
+  template:
+    metadata:
+      labels:
+        app: "{{ .Release.Name }}-api"
+      annotations:
+        linkerd.io/inject: enabled
+        config.linkerd.io/proxy-log-level: error
+        config.linkerd.io/proxy-cpu-request: "0.2"
+        config.linkerd.io/proxy-cpu-limit: "0.3"
+        config.linkerd.io/proxy-memory-request: 192Mi
+        config.linkerd.io/proxy-memory-limit: 256Mi
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: nginx
+          image: "{{ .Values.image }}:{{ .Values.tag }}"
+          imagePullPolicy: Always
+          resources: {{ .Values.containers.nginx.resources | toYaml | nindent 12 }}
+          envFrom:
+            - configMapRef:
+                name: "{{ .Release.Name }}-runtime-{{ template "suffixTemplate" . }}"
+            - secretRef:
+                name: "{{ .Release.Name }}-connectivity-external-secrets"
+          env:
+            - name: ENVIRONMENT
+              value: {{ .Values.environment }}
+            {{- if .Values.features.optionalFeature }}
+            - name: OPTIONAL_FEATURE
+              value: "true"
+            {{- end }}
+          volumeMounts:
+            - name: some-files
+              mountPath: "/opt/partnerstack/example/files"
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: "{{ .Values.containers.nginx.port }}"
+            periodSeconds: 5
+            initialDelaySeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: "{{ .Values.containers.nginx.port }}"
+            periodSeconds: 10
+            initialDelaySeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
+      volumes:
+        - name: some-files
+          secret:
+            secretName: "{{ .Release.Name }}-file-secret"

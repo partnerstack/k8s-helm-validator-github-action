@@ -1,0 +1,12 @@
+apiVersion: "v1"
+kind: "ConfigMap"
+metadata:
+  name: "{{ .Release.Name }}-runtime-{{ template "suffixTemplate" . }}"
+  namespace: "{{ .Release.Namespace }}"
+  labels:
+    app: "{{ .Release.Name }}"
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-3"
+data:
+  PORT: "{{ .Values.containers.nginx.port }}"

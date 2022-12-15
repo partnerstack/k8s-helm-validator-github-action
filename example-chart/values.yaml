@@ -1,0 +1,23 @@
+environment: local
+image: gcr.io/google-containers/busybox
+tag: 4bdd623e848417d96127e16037743f0cd8b528c026e9175e22a84f639eca58ff
+
+features:
+  optionalFeature: true
+
+# Please never do this and use proper secrets management! (this is just for testing purposes)
+secrets:
+  apiKey: THIS_IS_A_TEST_VALUE
+  file: '{"foo": "bar"}'
+
+replicas: 3
+
+containers:
+  nginx:
+    port: 8080
+    resources:
+      requests:
+        memory: "500Mi"
+        cpu: "0.5"
+      limits:
+        memory: "1Gi"

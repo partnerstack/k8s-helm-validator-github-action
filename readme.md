@@ -22,9 +22,18 @@ uses: actions/hello-world-docker-action@v2
 with:
   who-to-greet: 'Mona the Octocat'
 
-
 ## Testing
+
+### Locally run the script
 
 ```bash
 ./entrypoint.sh -c example-chart -v example-chart/values
+```
+
+### Build and run the container
+
+```bash
+docker build . --tag validate-helm-1
+docker run --mount type=bind,source="$(pwd)"/example-chart,target=/etc/example-chart \
+  validate-helm-1 -c example-chart -v example-chart/values
 ```

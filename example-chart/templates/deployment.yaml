@@ -9,15 +9,16 @@ metadata:
     tags.datadoghq.com/env: {{ .Values.environment }}
     tags.datadoghq.com/version: "{{ template "suffixTemplate" . }}"
 spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      app: "{{ .Release.Name }}-api"
+    #   company: test
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxUnavailable: 1
       maxSurge: 1
-  replicas: {{ .Values.replicas }}
-  selector:
-    matchLabels:
-      app: "{{ .Release.Name }}-api"
   template:
     metadata:
       labels:
@@ -68,7 +69,21 @@ spec:
             initialDelaySeconds: 10
             timeoutSeconds: 5
             failureThreshold: 10
+          securityContext:
+            readOnlyRootFilesystem: true
       volumes:
         - name: some-files
           secret:
             secretName: "{{ .Release.Name }}-file-secret"
+      affinity:
+        podAntiAffinity: # Try to schedule replicas on different hosts
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                    matchExpressions:
+                        - key: app
+                          operator: In
+                          values:
+                          - "{{ .Release.Name }}-api"
+                topologyKey: kubernetes.io/hostname

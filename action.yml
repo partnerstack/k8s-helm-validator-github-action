@@ -1,0 +1,37 @@
+name: "Validate Helm charts and values"
+description: "Validate Helm charts and their values files"
+author: "PartnerStack"
+branding:
+  icon: "sliders"
+  color: "blue"
+inputs:
+  chart-directory:
+    description: "Directory containing the Helm chart."
+  value-file-directory:
+    description: "Directory containing Helm values files."
+    default: "values"
+  # kubernetes-version:
+  #   description: "Version of Kubernetes to validate against"
+  #   default: "master"
+  # strict:
+  #   description: "Whether to not to check for extra properties" 
+  #   default: true
+  # openshift:
+  #   description: "Whether to use the schemas from OpenShift rather than Kubernetes" 
+  #   default: false
+  # ignore_missing_schemas:
+  #   description: "Whether or not to skip custom resources" 
+  #   default: true
+runs:
+  using: "docker"
+  image: "partnerstack/k8s-helm-validator-github-action:latest"
+  args:
+  - -c
+  - ${{ inputs.chart-directory }} 
+  - -v
+  - ${{ inputs.value-file-directory }}
+  # - --strict=${{ inputs.strict }}
+  # - --kubernetes-version
+  # - ${{ inputs.version }}
+  # - --openshift=${{ inputs.openshift }}
+  # - --ignore-missing-schemas=${{ inputs.ignore_missing_schemas }}

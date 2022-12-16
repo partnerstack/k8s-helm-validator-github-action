@@ -1,0 +1,5 @@
+checks:
+  exclude:
+    - "privileged-container"
+    - "run-as-non-root"
+    - "unset-cpu-requirements"

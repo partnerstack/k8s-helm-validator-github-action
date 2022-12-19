@@ -41,6 +41,6 @@ for VALUES_FILE in $VALUES_DIRECTORY/*; do
 done
 
 if [ $CHART_ERROR -gt 0 ]; then
-
+    echo "Errors"
 fi
 exit $CHART_ERROR

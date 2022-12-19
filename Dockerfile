@@ -1,5 +1,7 @@
 FROM golang:1.19-bullseye
 
+WORKDIR /var/k8s-helm-validator
+
 # Need these to download and install keys (below)
 RUN apt-get update && \
   apt-get install apt-transport-https ca-certificates curl --yes

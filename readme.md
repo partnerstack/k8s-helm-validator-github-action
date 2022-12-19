@@ -35,5 +35,5 @@ with:
 ```bash
 docker build . --tag validate-helm-1
 docker run --mount type=bind,source="$(pwd)"/example-chart,target=/etc/example-chart \
-  validate-helm-1 -c example-chart -v example-chart/values
+  validate-helm-1 -c /etc/example-chart -v /etc/example-chart/values
 ```

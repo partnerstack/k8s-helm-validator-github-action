@@ -22,6 +22,12 @@ inputs:
   # ignore_missing_schemas:
   #   description: "Whether or not to skip custom resources" 
   #   default: true
+outputs:
+  passed-validation:
+    description: "Chart permutations that passed validation"
+  failed-validation:
+    description: "Chart permutations that failed validation"
+    # value: ${{ steps.random-number-generator.outputs.random-id }}
 runs:
   using: "docker"
   image: "partnerstack/k8s-helm-validator-github-action:latest"
